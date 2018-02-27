@@ -1,0 +1,14 @@
+{
+  "name": "leaflet-lesson",
+  "version": "1.0.0",
+  "description": "GA Lesson",
+  "main": "scripts.js",
+  "scripts": {
+    "start": "http-server -o"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^0.11.1"
+  }
+}
