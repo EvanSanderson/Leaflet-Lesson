@@ -75,3 +75,8 @@ You'll notice Geojson has three primary keys: type (almost always Feature), geom
 Sometimes you might plop a geojson data set right into your javascript file (not recommended). Sometimes you might make an API call to some endpoint, and get geojson back (this da best!). For this case, we are going to take our geojson file, and put it into a seperate folder called data. We'll then use a plugin called Leaflet Ajax to reference it. 
 
 #### 3 - Showing Data On The Map ####
+
+- update coordinates for map zoom
+- add additional tile layer
+- L.geojson.ajax
+- add control
