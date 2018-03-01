@@ -76,7 +76,57 @@ Sometimes you might plop a geojson data set right into your javascript file (not
 
 #### 3 - Showing Data On The Map ####
 
-- update coordinates for map zoom
-- add additional tile layer
-- L.geojson.ajax
-- add control
+Before we move on to showing our data on the map, lets make a few small tweaks to the map to add some additional UI goodness. First off, let's update the center of the map with a point from within our data set. This way, when the map loads, it's right over the data points. We'll also update the zoom distance on map initialization to be a good deal closer in.
+
+Finally, we're going to add an additional tile layer as a base map. We'll then pass it in to the map initialization function. Remember how that layers options is in the form of an array? Well, this is why. After all is said and done, it should look like: 
+
+
+```
+const tileLayer1 = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=[YOUR TOKEN]', {
+    id: 'mapbox.light',
+    attribution: false
+});
+
+const tileLayer2 = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=[YOUR TOKEN]', {
+    id: 'mapbox.streets',
+    attribution: false
+});
+
+const map = L.map('map', {
+    center: [
+        38.79930767201779,
+          -77.12911152370515
+        ],
+    zoom: 10,
+    layers: [tileLayer1, tileLayer2],
+});
+```
+We're going to two things next. The first is to add our geojson to the map using the Leaflet Ajax plugin. Leaflet is an object oriented framework, and many of the objects have inheritance. L.Geojson.Ajax inherits the the feature groups class and from the layer class. Therefore, we not only make an ajax call to retrieve the geojson data, we also create a layer and pass additional options into that new layer at the same time. The syntax looks like:
+
+```
+const geoLayer = new L.GeoJSON.AJAX('data/stations.geojson', {
+    // options here
+})
+```
+
+You'll notice we don't pass any options in yet. We'll get to that later. Lastly, we are going to initialize a control. A control allows you to toggle layers on and off your map. The syntax looks like the following:
+
+```
+const baseMaps = {
+    "Grey": tileLayer1,
+    "Streets": tileLayer2
+};
+
+const overlayMaps = {
+    "Our Points": geoLayer
+};
+
+L.control.layers(baseMaps, overlayMaps).addTo(map);
+```
+
+You can see we pass two object literals into control.layers() - the first param represents the basemaps, and the second represents additional layers you've added. Finally, we call .addTo(map) - this is a common parlance in Leaflet you'll see for many UI features. 
+
+Now we should have a map, with base layers, a control, and look: our geojson data points! Those icons are the default Leaflet markers, but we can change that in our next and last section.
+Onward!
+
+#### 4 - Interactions ##### 

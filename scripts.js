@@ -20,6 +20,7 @@ const map = L.map('map', {
 });
 
 const geoLayer = new L.GeoJSON.AJAX('data/stations.geojson', {
+    // options here
 })
 
 const baseMaps = {
