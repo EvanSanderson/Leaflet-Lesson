@@ -10,6 +10,11 @@ const tileLayer2 = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}
     attribution: false
 });
 
+const our_icon = L.divIcon({
+    iconSize: new L.Point(10,10),
+    className: 'map-icon'
+});
+
 const map = L.map('map', {
     center: [
         38.79930767201779,
@@ -20,8 +25,13 @@ const map = L.map('map', {
 });
 
 const geoLayer = new L.GeoJSON.AJAX('data/stations.geojson', {
-    // options here
+    onEachFeature: onEach,
+    pointToLayer: function(feature, latlng){
+        return L.marker(latlng, {icon: our_icon})
+    }
 })
+
+geoLayer.addTo(map);
 
 const baseMaps = {
     "Grey": tileLayer1,
@@ -33,3 +43,19 @@ const overlayMaps = {
 };
 
 L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+function onEach(feature,layer){
+    layer.on({
+        click: displayPopup
+    })
+}
+
+function displayPopup(e){
+    let content ='';
+    const {properties} = e.target.feature;
+    for(let prop in properties){
+        content += `<p>${properties[prop]}</p>`;
+    }
+    map.setView(e.target._latlng, 12, {animate: true});
+    e.target.bindPopup(content).openPopup();
+}

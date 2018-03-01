@@ -130,3 +130,97 @@ Now we should have a map, with base layers, a control, and look: our geojson dat
 Onward!
 
 #### 4 - Interactions ##### 
+
+It's awfully nice of Leaflet to provide default icons, but in most map projects you are going to want more control over the styling and structure of the icons. Let's take care of that but passing an additional option to the L.Geojson.Ajax instatiation. First we'll need to create a variable that represents our 'Div Icon'.
+
+```
+const our_icon = L.divIcon({
+    iconSize: new L.Point(10,10),
+    className: 'map-icon'
+});
+```
+
+We're passing an option literal here with two key value pairs: iconSize and className. Icon size sets the dimensions of the icon (10px X 10px here), and className provides a CSS class we can use as a reference to style the icon. 
+
+Then we want to insert that divIcon in the pointToLayer option in our L.Geojson.Ajax call:
+
+```
+const geoLayer = new L.GeoJSON.AJAX('data/stations.geojson', {
+    pointToLayer: function(feature, latlng){
+        return L.marker(latlng, {icon: our_icon})
+    }
+})
+```
+
+The syntax looks like a callback function (with the feature and the coordinates of the feature as parameters), which returns a L.marker object using the coordinates of the feature, and passing in our Div Icon as the icon. A lot to take in here, but its important to note that any of those options passed to L.GeoJSON.AJAX refer to each individual feature in your feature set (it's like everything is occuring in those brackets within a loop of the feature set). 
+
+We can add a little bit of styling to our icons now. 
+
+```
+.map-icon {
+    border:1px solid white;
+    background: darkslategrey; 
+    z-index: 99999;
+    opacity: .8;
+    border-radius: 3px;
+}
+
+.map-icon:hover {
+    background: gray;
+    cursor: pointer;
+    opacity: .5;
+}
+```
+
+The final step before adding interactions is making it so that our icon layer appears immediately on the map when the page is loaded. That's as simple as:
+
+```
+geoLayer.addTo(map);
+```
+
+Now for the interactions: where do we think that layer of logic is going to go? If you guessed as another option within the L.Geojson.AJAX call, then you are correct! We'll be using the onEachFeature key, and we'll point it a function (yet to be declared called onEach - lame, I know). Our L.Geojson.AJAX friend will now look like:
+
+```
+const geoLayer = new L.GeoJSON.AJAX('data/stations.geojson', {
+    onEachFeature: onEach, 
+    pointToLayer: function(feature, latlng){
+        return L.marker(latlng, {icon: our_icon})
+    }
+})
+```
+
+We create the onEach function and it looks like the following:
+
+```
+function onEach(feature,layer){
+    layer.on({
+        click: displayPopup
+    })
+}
+```
+
+You could put a variety of interactions here, but for now we are going to stick with a simple one: a click event. It's all pretty semantic here - when clicking on a layer (the point) we will call the function displayPopup. So guess what? Time to make yet another function.
+
+```
+function displayPopup(e){
+    let content ='';
+    const {properties} = e.target.feature;
+    for(let prop in properties){
+        content += `<p>${properties[prop]}</p>`;
+    }
+    map.setView(e.target._latlng, 12, {animate: true});
+    e.target.bindPopup(content).openPopup();
+}
+```
+
+Lets break this down. First, we set up our content empty string. This is what will eventually go into the popup. Then, we use object destructuring to grab the properties section of the param "e". "e" refers to the event (the click), and contains a lot of important information. In this case, we want to drill down into the feature, and the properties of that feature. Then, we iterate over the properties, adding a new "<p></p>" element for each property. Finally, we use map.setView to zoom into the point and e.target.bindPopup(content).openPopup to add our content to a popup and then pop the popup up. Wow, what a sentence.
+
+### Finale ###
+
+I hope you enjoyed getting to create a map. Leaflet has a ton of features, and if you are interested in learning more, poke around in the docs and explore. You might even consider using it as part of your final project :) 
+
+BONUS: Add another Geojson layer - this time, using the geometry type Polygon!
+SECOND BONUS: Use the "line" property in the stations.geojson data set to color each point based on its line, and create a real map of the DC metro!
+DOUBLE SECRET EXTRA AWESOME BONUS: Find a geojson data set with a time series, and create a range slider that lets you slide through the time series and watch the data change!
+
+
